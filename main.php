@@ -11,7 +11,7 @@
     require("header.html");
 ?>
 <main class="px-3">
-    <div class="card text-white bg-dark mb-3 d-inline-block" style="max-width: 20rem;">
+    <div class="card text-white bg-dark mb-3 d-inline-block border-light" style="max-width: 20rem;">
     <div class="card-body">
         <h4 class="card-title">
             <?php print($l); ?>
@@ -22,7 +22,7 @@
             {
                 ?>
                     <form class="form-inline">
-                        <button type="submit" value="del" class="btn btn-primary mb-2">Выйти</button>
+                        <button type="submit" value="del" class="btn btn-primary btn-secondary mb-2">Выйти</button>
                     </form>
                 <?php
             }
