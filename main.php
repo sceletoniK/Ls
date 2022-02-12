@@ -3,10 +3,17 @@
     $l = "Вы не вошли :(";
     session_start();
 
+    if(isset($_REQUEST["sub"])) 
+    {
+        session_unset();
+        session_destroy();
+    }
+
     if(isset($_SESSION["login"]) && isset($_SESSION["password"]))
     {
         $l = "Приветствую, ".$_SESSION["login"]."!";
     }
+
 
     require("header.html");
 ?>
@@ -22,7 +29,7 @@
             {
                 ?>
                     <form class="form-inline">
-                        <button type="submit" value="del" class="btn btn-primary btn-secondary mb-2">Выйти</button>
+                        <button type="submit" name="sub" value="del" class="btn btn-primary btn-secondary mb-2">Выйти</button>
                     </form>
                 <?php
             }
