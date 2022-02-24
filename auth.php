@@ -5,14 +5,7 @@
     if(isset($_REQUEST["login"]) && isset($_REQUEST["password"]))
     {
         
-        try 
-        {
-            $db = new PDO('mysql:host=localhost;dbname=users', 'root', '');
-        } catch (PDOException $e) 
-        {
-            print "Error!: " . $e->getMessage();
-            die();
-        }
+        require('connect.php');
 
         $stmt = $db->prepare("SELECT * FROM user WHERE `login` = ?");
         $stmt->execute([$_REQUEST["login"]]);
@@ -24,7 +17,7 @@
                 session_start();
                 $_SESSION["login"] = $row["login"];
                 $_SESSION["password"] = $row["password"];
-                Header("Location: main.php");
+                Header("Location: index.php");
             }
         }
         $l = "";

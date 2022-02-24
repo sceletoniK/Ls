@@ -4,14 +4,7 @@
 
     if(isset($_SESSION["login"]) && isset($_SESSION["password"]))
     {
-        try 
-        {
-            $db = new PDO('mysql:host=localhost;dbname=users', 'root', '');
-        } catch (PDOException $e) 
-        {
-            print "Error!: ".$e->getMessage();
-            die();
-        }
+        require('connect.php');
 
         if(isset($_REQUEST["add"]))
         {
@@ -25,7 +18,7 @@
 
             $stmt = $db->prepare("UPDATE `card` SET `name` = ?, `description` = ? WHERE `card`.`id` = ?;");
             $stmt->execute([$_REQUEST["name"],$_REQUEST["desc"],$_REQUEST["l"]]);
-            header("location: main.php");
+            header("location: index.php");
         }
 
         $stmt = $db->prepare("SELECT * FROM card WHERE `id` = ?");
@@ -35,7 +28,7 @@
     else
     {
         die($_SESSION["login"]);
-        header("location: main.php");
+        header("location: index.php");
     }
     require("header.html");
 ?>

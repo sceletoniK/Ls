@@ -1,7 +1,6 @@
 <?php
-
-    $l = "Вы не вошли :(";
     session_start();
+    $l = "Вы не вошли :(";
 
     if(isset($_REQUEST["sub"])) 
     {
@@ -13,20 +12,13 @@
     {
         $l = "Приветствую, ".$_SESSION["login"]."!";
 
-        try 
-        {
-            $db = new PDO('mysql:host=localhost;dbname=users', 'root', '');
-        } catch (PDOException $e) 
-        {
-            print "Error!: ".$e->getMessage();
-            die();
-        }
+        require('connect.php');
 
         if(isset($_REQUEST["add"]))
         {
             $stmt = $db->prepare("INSERT INTO `card` (`id`, `login`, `name`, `description`) VALUES (?, ?, ?, ?);");
             $stmt->execute([NULL,$_SESSION["login"],$_REQUEST["name"],$_REQUEST["desc"]]);
-            header("location: main.php");
+            header("location: index.php");
         }
 
         if(isset($_REQUEST["del"]))
@@ -102,7 +94,7 @@
                                 </h5>
 
                                 <div class="btn-group">
-                                    <button type="submit" name="add" value="new" class="btn btn-sm btn-outline-secondary">Add</button>
+                                    <button type="button" name="add" value="new" class="btn btn-sm btn-outline-secondary">Add</button>
                                 </div>
                             </div>
                         </div>

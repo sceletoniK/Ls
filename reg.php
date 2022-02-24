@@ -5,14 +5,7 @@
     if(isset($_REQUEST["login"]) && isset($_REQUEST["repassword"]) && isset($_REQUEST["password"]))
     {
         
-        try 
-        {
-            $db = new PDO('mysql:host=localhost;dbname=users', 'root', '');
-        } catch (PDOException $e) 
-        {
-            print "Error!: " . $e->getMessage();
-            die();
-        }
+        require('connect.php');
 
         $stmt = $db->prepare("SELECT * FROM user WHERE `login` = ?");
         $stmt->execute([$_REQUEST["login"]]);
