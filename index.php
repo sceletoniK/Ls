@@ -14,19 +14,6 @@
 
         require('connect.php');
 
-        if(isset($_REQUEST["add"]))
-        {
-            $stmt = $db->prepare("INSERT INTO `card` (`id`, `login`, `name`, `description`) VALUES (?, ?, ?, ?);");
-            $stmt->execute([NULL,$_SESSION["login"],$_REQUEST["name"],$_REQUEST["desc"]]);
-            header("location: index.php");
-        }
-
-        if(isset($_REQUEST["del"]))
-        {
-            $stmt = $db->prepare("DELETE FROM `card` WHERE `card`.`id` = ?");
-            $stmt->execute([$_REQUEST["del"]]);
-        }
-
     }
     require("header.html");
 ?>
@@ -38,6 +25,7 @@
         </h4>
 
         <?php
+
             if(isset($_SESSION["login"]) && isset($_SESSION["password"]))
             {
                 ?>
@@ -51,57 +39,54 @@
                     </div>
                     <div class="album py-5 text-dark bg-dark">
                     <div class="container">
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                    <div id="parent_div" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                 <?php
                 $stmt = $db->prepare("SELECT * FROM card WHERE `login` = ?");
                 $stmt->execute([$_SESSION["login"]]);
                 while($row = $stmt->fetch(PDO::FETCH_ASSOC))
                 {
                     ?>
-                            <div class="col">
+                            <div class="col" id=<?php print($row['id']);?>>
                             <div class="card shadow-sm">
-                                <form style="margin: 0">
                                 <div class="card-header" role="tab" id="headingOne">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">
+                                        <h5 class="mb-0" id="name_<?php print($row['id']) ?>">
                                             <?php print($row['name']); ?>
                                         </h5>
 
                                         <div class="btn-group">
                                             
-                                            <button type="button" class="btn btn-sm btn-outline-secondary"><a class="text-decoration-none" style="color: inherit" href="edit.php?l=<?php print($row['id']);?>">Edit</a></button>
-                                            <button type="submit" name="del" value="<?php print($row['id']);?>" class="btn btn-sm btn-outline-secondary">Delete</button>
+                                            <input type="button" id="btn_ed_<?php print($row['id']); ?>" value="Edit" onclick="EditCard('<?php print($row['id']); ?>')" class="btn btn-sm btn-outline-secondary">
+                                            <input type="button" id="btn_de_<?php print($row['id']); ?>" value="Delete" name="del" onclick="DeleteCard('<?php print($row['id']); ?>')" class="btn btn-sm btn-outline-secondary">
                                             
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <textarea class="form-control " id="exampleFormControlTextarea1" rows="3" style="resize: none" readonly><?php print($row['description']);?></textarea>
+                                    <textarea class="form-control " id="text_<?php print($row['id'])?>" rows="3" style="resize: none" readonly><?php print($row['description']);?></textarea>
                                 </div>
-                                </form>
                             </div>
                             </div>
                     <?php
                 } 
+                
                 ?>       
-                <div class="col">
+                <div class="col" id="adder_card">
                 <div class="card shadow-sm">
-                    <form style="margin: 0" method="POST">
                         <div class="card-header" role="tab" id="headingOne">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">
-                                    <input type="text" name="name">
+                                    <input type="text" name="name" id="add_name">
                                 </h5>
 
                                 <div class="btn-group">
-                                    <button type="button" name="add" value="new" class="btn btn-sm btn-outline-secondary">Add</button>
+                                    <input type="button" name="add" onclick="RequestForCard('<?php print($_SESSION['login']); ?>')" value="Add" class="btn btn-sm btn-outline-secondary">
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            <textarea class="form-control" name="desc" id="exampleFormControlTextarea1" rows="3" style="resize: none;"></textarea>
+                            <textarea class="form-control" name="desc" id="add_text" rows="3" style="resize: none;"></textarea>
                         </div>
-                    </form>
                 </div>
                 </div>
 
