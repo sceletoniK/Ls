@@ -2,8 +2,8 @@
     <div class="card shadow-sm">
         <div class="card-header" role="tab" id="headingOne">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <input type="text" name="name" id="add_name">
+                <h5 class="mb-0" style="width: 70%">
+                    <input type="text" name="name" id="add_name" style="max-width: 100%">
                 </h5>
                 <div class="btn-group">
                     <input type="button" name="add" onclick="RequestForCard('<?php print($_SESSION['login']); ?>')" value="Add" class="btn btn-sm btn-outline-secondary">

@@ -201,12 +201,13 @@ function AddAdderCard(login)
     
     var flex = document.createElement("div");
     header.appendChild(flex);
-    flex.className = "d-flex justify-content-between align-items-center";
+    flex.className = "d-flex justify-content-between align-items-center ";
 
     var headername = document.createElement("h5");
     flex.appendChild(headername);
     headername.className = "mb-0";
-    headername.innerHTML = '<input type="text" name="name" id="add_name">';
+    headername.setAttribute("style","width: 70%");
+    headername.innerHTML = '<input type="text" name="name" id="add_name"  style="max-width: 100%">';
 
     var group = document.createElement("div");
     flex.appendChild(group);
