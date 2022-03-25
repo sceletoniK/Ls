@@ -2,30 +2,32 @@ var buffer_editor_text;
 var buffer_editor_name;
 const xhr = new XMLHttpRequest();
 
-function RequestForCard(login)
+function RequestForCard(login, stage)
 {
-    var dname = document.getElementById('add_name').value;
+    var dname = document.getElementById('add_name_'+stage).value;
 
     if(dname == "") return false;
-    var dtext = document.getElementById('add_text').value;
+    var dtext = document.getElementById('add_text_'+stage).value;
+
+    var dcategory = document.getElementById('category_'+stage).value;
 
     if(xhr.readyState != 0 && xhr.readyState != 4) return false;
-
-    xhr.open('POST','add.php',true);
+ 
+    xhr.open('POST','Request/add.php',true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
     xhr.onload = () =>
     {
         if(xhr.status == 200)
         {
-            AddCard(dname,dtext, xhr.responseText, login);
+            AddCard(dname,dtext, xhr.responseText, login, dcategory, stage);
         }
         else{
             alert(xhr.status);
         }
     }
 
-    xhr.send("name="+dname+"&text="+dtext+"&login="+login);
+    xhr.send("name="+dname+"&text="+dtext+"&login="+login+"&category="+dcategory+"&stage="+stage);
 
 }
 function DeleteCard(id)
@@ -33,7 +35,7 @@ function DeleteCard(id)
 
     if(xhr.readyState != 0 && xhr.readyState != 4) return false;
 
-    xhr.open('POST','delete.php',true);
+    xhr.open('POST','Request/delete.php',true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
     xhr.onload = () =>
@@ -53,7 +55,7 @@ function EditCard(id)
 {
     var header = document.getElementById('name_'+ id);
     buffer_editor_name = header.innerText;
-    header.innerHTML="<input type='text' id='editor_name' value="+buffer_editor_name+">";
+    header.innerHTML="<input type='text' id='editor_name' style='max-width: min-content' value=\'"+buffer_editor_name+"\'>";
     var area = document.getElementById("text_"+id);
     buffer_editor_text = area.value;
     area.readOnly = false;
@@ -93,7 +95,7 @@ function ConfirmEdit(id)
 
     if(xhr.readyState != 0 && xhr.readyState != 4) return false;
 
-    xhr.open('POST','edit.php',true);
+    xhr.open('POST','Request/edit.php',true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
     xhr.onload = () =>
@@ -113,110 +115,185 @@ function ConfirmEdit(id)
 }
 
 
-function AddCard(name, text, id, login)
+function AddCard(name, text, id, login, category, stage)
 {
 
-    var adder = document.getElementById("adder_card");
+    var adder = document.getElementById("adder_card_"+stage);
     adder.remove();
 
-    var parent = document.getElementById("parent_div");
-    
-    var column = document.createElement("div");
-    parent.appendChild(column);
-    column.className = "col";
-    column.setAttribute("id",id);
-
-
-    var card = document.createElement("div");
-    column.appendChild(card);
-    card.className = "card shadow-sm";
-    
-    var header = document.createElement("div");
-    card.appendChild(header);
-    header.className = "card-header";
-    
-    var flex = document.createElement("div");
-    header.appendChild(flex);
-    flex.className = "d-flex justify-content-between align-items-center";
-
-    var headername = document.createElement("h5");
-    flex.appendChild(headername);
-    headername.className = "mb-0";
-    headername.innerText = name;
-    headername.id = "name_"+id;
-
-    var group = document.createElement("div");
-    flex.appendChild(group);
-    group.className = "btn-group";
-
-    var btn = document.createElement("button");
-    btn.className = "btn btn-sm btn-outline-secondary";
-    group.appendChild(btn);
-    btn.id = "btn_ed_"+id;
-    btn.onclick = EditCard.bind(this,id);
-    btn.innerText="Edit";
-    btn.setAttribute("style","solor: inherit");
-
-    var btn = document.createElement("button");
-    btn.className = "btn btn-sm btn-outline-secondary";
-    group.appendChild(btn);
-    btn.id = "btn_de_"+id;
-    btn.onclick = DeleteCard.bind(this,id);
-    btn.innerText="Delete";
-    btn.setAttribute("style","solor: inherit");
-
-    var body = document.createElement("div");
-    card.appendChild(body);
-    body.className = "card-body";
-
-    var area = document.createElement("textarea")
-    area.readOnly = true;
-    area.id = "text_"+id;
-    body.appendChild(area);
-    area.className="form-control";
-    area.setAttribute("rows","3");
-    area.setAttribute("style","resize: none");
-    area.innerText = text;
-
-    AddAdderCard(login);
+    var parent = document.getElementById("parent_div_"+stage);
+    parent.innerHTML += "<div class='col' id='"+id+"'>"+
+                        "<div class='card shadow-sm'>" +
+                        "<div class='card-header' role='tab' id='headingOne'>" +
+                        "<div class='d-flex justify-content-between align-items-center'>" +
+                        "<h5 class='mb-0' style='width: 70%' id='name_"+id+"'>"+name+"</h5>" +
+                        "<div class='btn-group'>" +
+                        "<input type='button' id='btn_ed_"+id+"' value='Edit' onclick='EditCard("+id+")' class='btn btn-sm btn-outline-secondary'>" +
+                        "<input type='button' id='btn_de_"+id+"' value='Delete' name='del' onclick='DeleteCard("+id+")' class='btn btn-sm btn-outline-secondary'>" +
+                        "</div></div></div>"+
+                        "<div class='card-body'><p>"+category+"</p>"+
+                        "<textarea class='form-control ' id='text_"+id+"' rows='3' style='resize: none' readonly>"+text+"</textarea></div></div></div>";
+    AddAdderCard(login,stage);
 }
 
-function AddAdderCard(login)
+
+function AddAdderCard(login,stage)
 {
-    var parent = document.getElementById("parent_div");
+    xhr.open('GET','Request/category.php',true);
+
+    xhr.onload = () =>
+    {
+        if(xhr.status == 200)
+        {
+            var option = xhr.responseText.split(" ");
+            var options = "";
+            option.forEach(element => {
+                options += "<option value='"+element+"'>"+element+"</option>"
+            });
+
+            var parent = document.getElementById("parent_div_"+stage);
+            parent.innerHTML += "<div class='col' id='adder_card_"+stage+"'>" +
+                        "<div class='card shadow-sm'>" +
+                        "<div class='card-header' role='tab' id='headingOne'>" +
+                        "<div class='d-flex justify-content-between align-items-center'>" +
+                        "<h5 class='mb-0' style='width: 70%'>" +
+                        "<input type='text' name='name' id='add_name_"+stage+"' style='max-width: 65%'> </h5>" +
+                        "<div class='btn-group'>" +
+                        `<input type='button' name='add' onclick='RequestForCard(\"${login}\",\"${stage}\")' value='Add' class='btn btn-sm btn-outline-secondary'>` +
+                        "</div></div></div>" +
+                        "<div class='card-body'>" +
+                        "<select class='form-select w-50 form-select-sm mx-auto mb-2' name='category' id='category_"+stage+"' id=''>" +
+                        options +
+                        "</select>" +
+                        "<textarea class='form-control' name='desc' id='add_text_"+stage+"' rows='3' style='resize: none;'></textarea>" +
+                        "</div></div></div>";
+        }
+        else{
+            alert(xhr.status);
+        }
+    }
+    xhr.send();  
+}
+
+function AddRow(parent, name)
+{
+    var table = document.getElementById(parent+"_body");
+    table.innerHTML += `<tr id='${parent}_${name}'>` + 
+                       `<th scope='row' id='${name}'>${name}</th>` +
+                       `<td><button id='del__${name}' type='button' class='btn btn-info' onclick='Delete${parent}(${name})'>Удалить</button></td></tr>`;
+}
+
+function DeleteRow(parent,name)
+{
+    var row = document.getElementById(parent+"_"+name);
+    row.remove();
+}
+
+function AddCategory()
+{
+    var name = document.getElementById('name_adder_category').value;
+    if(name == "") return;
+    xhr.open('POST','Request/CategoryRequest.php', true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     
-    var column = document.createElement("div");
-    parent.appendChild(column);
-    column.className = "col";
-    column.setAttribute("id",'adder_card');
 
+    xhr.onload = () =>
+    {
+        if(xhr.status == 200)
+        {
+            if(xhr.responseText == "ok")
+            {
+                AddRow('Category',name);
+            }
+            else
+            {
+                alert(xhr.responseText);
+            }
+        }
+        else
+        {
+            alert(xhr.status);
+        }
+    }
+    xhr.send("choice=add"+"&new="+name);
+}
 
-    var card = document.createElement("div");
-    column.appendChild(card);
-    card.className = "card shadow-sm";
+function AddStage()
+{
+    var name = document.getElementById('name_adder_stage').value;
+    if(name == "") return;
+    xhr.open('POST','Request/StageRequest.php', true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     
-    var header = document.createElement("div");
-    card.appendChild(header);
-    header.className = "card-header";
-    
-    var flex = document.createElement("div");
-    header.appendChild(flex);
-    flex.className = "d-flex justify-content-between align-items-center ";
 
-    var headername = document.createElement("h5");
-    flex.appendChild(headername);
-    headername.className = "mb-0";
-    headername.setAttribute("style","width: 70%");
-    headername.innerHTML = '<input type="text" name="name" id="add_name"  style="max-width: 100%">';
+    xhr.onload = () =>
+    {
+        if(xhr.status == 200)
+        {
+            if(xhr.responseText == "ok")
+            {
+                AddRow('Stage',name);
+            }
+            else
+            {
+                alert(xhr.responseText);
+            }
+        }
+        else
+        {
+            alert(xhr.status);
+        }
+    }
+    xhr.send("choice=add"+"&new="+name);
+}
 
-    var group = document.createElement("div");
-    flex.appendChild(group);
-    group.className = "btn-group";
-    group.innerHTML = "<input type='button' name='add' onclick=RequestForCard(\'"+login+"\') value='Add' class='btn btn-sm btn-outline-secondary'>";
+function DeleteCategory(name)
+{
+    xhr.open('POST','Request/CategoryRequest.php', true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-    var body = document.createElement("div");
-    card.appendChild(body);
-    body.className = "card-body";
-    body.innerHTML = '<textarea class="form-control" name="desc" id="add_text" rows="3" style="resize: none;"></textarea>';
+    xhr.onload = () =>
+    {
+        if(xhr.status == 200)
+        {
+            if(xhr.responseText == "ok")
+            {
+                DeleteRow('Category',name);
+            }
+            else
+            {
+                alert(`Удалить \'${name}\' невозможно: Данная категория используется.`);
+            }
+        }
+        else{
+            alert(xhr.status);
+        }
+    }
+    xhr.send("choice=del"+"&name="+name);
+}
+
+function DeleteStage(name)
+{
+    xhr.open('POST','Request/StageRequest.php', true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    xhr.onload = () =>
+    {
+        if(xhr.status == 200)
+        {
+            if(xhr.responseText == "ok")
+            {
+                DeleteRow('Stage',name);
+            }
+            else
+            {
+                alert(`Удалить \'${name}\' невозможно: Данная категория используется.`);
+            }
+        }
+        else{
+            alert(xhr.status);
+        }
+    }
+    xhr.send("choice=del"+"&name="+name);
 }
 

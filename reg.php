@@ -22,7 +22,7 @@
         $l = "";
     }
 
-    require("header.html");
+    require("header.php");
 ?>
 <main class="px-3">
 

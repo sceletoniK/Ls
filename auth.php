@@ -1,7 +1,8 @@
 <?php
 
     $l = "d-none";
-
+    require("header.php");
+    
     if(isset($_REQUEST["login"]) && isset($_REQUEST["password"]))
     {
         
@@ -14,7 +15,6 @@
         {
             if($_REQUEST["password"] == $row["password"])
             {
-                session_start();
                 $_SESSION["login"] = $row["login"];
                 $_SESSION["password"] = $row["password"];
                 Header("Location: index.php");
@@ -23,7 +23,7 @@
         $l = "";
     }
 
-    require("header.html");
+    
 ?>
 <main class="px-3">
 

@@ -25,6 +25,24 @@
                       <li class="nav-item">
                         <a class="nav-link" href="auth.php">Authorisation</a>
                       </li>
+                      <?php
+                      session_start();
+
+                        if(isset($_REQUEST["sub"])) 
+                        {
+                          session_unset();
+                          session_destroy();
+                        }
+
+                        if(isset($_SESSION['login']) && $_SESSION['login'] == "admin")
+                        {
+                          ?>
+                          <li class="nav-item">
+                            <a class="nav-link" href="admin.php">Admin</a>
+                          </li>
+                          <?php
+                        }
+                      ?>
                     </ul>
                 </div>
             </div> 

@@ -1,21 +1,15 @@
 <?php
-    session_start();
+    require("header.php");
+
     $welcome_message = "Вы не вошли :(";
-
-    if(isset($_REQUEST["sub"])) 
-    {
-        session_unset();
-        session_destroy();
-    }
-
+    
     if(isset($_SESSION["login"]) && isset($_SESSION["password"]))
     {
         $welcome_message = "Приветствую, ".$_SESSION["login"]."!";
 
         require('connect.php');
-
     }
-    require("header.html");
+    
 ?>
 <main>
     <div class="card text-white bg-dark mb-3 d-inline-block border-light" style="max-width: 20rem;">
@@ -33,28 +27,24 @@
                             <button type="submit" name="sub" value="del" class="btn btn-primary btn-secondary mb-2">Выйти</button>
                         </div>
                     </form>
-
                     </div>
                     </div>
-                    <div class="album py-5 text-dark bg-dark">
-                    <div class="container">
-                    <div id="parent_div" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                 <?php
-                $stmt = $db->prepare("SELECT * FROM card WHERE `login` = ?");
-                $stmt->execute([$_SESSION["login"]]);
-                while($row = $stmt->fetch(PDO::FETCH_ASSOC))
-                {
-                    require("card.php");
-                } 
-                
-                    require("addercard.php")
-                ?>       
+                    $stmt = $db->prepare("SELECT * FROM `stage`");
+                    $stmt->execute([]);
+                    while($column = $stmt->fetch(PDO::FETCH_ASSOC))
+                    {
+                        require("components/column.php");
+                    }
+            }
+            else
+            {
+                ?>
+                </div>
                 </div>
                 <?php
             }
         ?>
-    </div>
-    </div>
 </main>
 <?php
     require("footer.html");
