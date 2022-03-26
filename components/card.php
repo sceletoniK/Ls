@@ -8,14 +8,16 @@
 
                 <div class="btn-group">
                                             
-                    <input type="button" id="btn_ed_<?= $row['id']; ?>" value="Edit" onclick="EditCard('<?= $row['id']; ?>')" class="btn btn-sm btn-outline-secondary">
+                    <input type="button" id="btn_ed_<?= $row['id']; ?>" value="Edit" onclick="EditCard('<?= $row['id']; ?>','<?= $column['name'] ?>')" class="btn btn-sm btn-outline-secondary">
                     <input type="button" id="btn_de_<?= $row['id']; ?>" value="Delete" name="del" onclick="DeleteCard('<?= $row['id']; ?>')" class="btn btn-sm btn-outline-secondary">
                                             
                 </div>
             </div>
         </div>
         <div class="card-body">
-            <p><?= $row['category'] ?></p>
+            <div id="category_area_<?= $row['id'];?>" class="d-flex justify-content-center">
+                <p id="category_<?= $row['id']?>"><?= $row['category'] ?></p>
+            </div>
             <textarea class="form-control " id="text_<?= $row['id'];?>" rows="3" style="resize: none" readonly><?= $row['description'];?></textarea>
         </div>
     </div>

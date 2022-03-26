@@ -1,5 +1,7 @@
 var buffer_editor_text;
 var buffer_editor_name;
+var buffer_editor_category;
+var buffer_editor_stage;
 const xhr = new XMLHttpRequest();
 
 function RequestForCard(login, stage)
@@ -51,22 +53,63 @@ function DeleteCard(id)
 
     xhr.send("id="+id);
 }
-function EditCard(id)
+function EditCard(id, table)
 {
-    var header = document.getElementById('name_'+ id);
-    buffer_editor_name = header.innerText;
-    header.innerHTML="<input type='text' id='editor_name' style='max-width: min-content' value=\'"+buffer_editor_name+"\'>";
-    var area = document.getElementById("text_"+id);
-    buffer_editor_text = area.value;
-    area.readOnly = false;
+    xhr.open('GET','Request/category.php',true);
 
-    var btn_ed = document.getElementById("btn_ed_"+id);
-    btn_ed.value = "Cancel";
-    btn_ed.onclick = CancelEdit.bind(this,id);
+    xhr.onload = () =>
+    {
+        if(xhr.status == 200)
+        {
+            var response = xhr.responseText.split("&");
+            var option = response[0].split("+");
+            var stage = response[1].split("+");
+            var stages = "";
+            var options = "";
 
-    var btn_de = document.getElementById("btn_de_"+id);
-    btn_de.value = "Confirm";
-    btn_de.onclick = ConfirmEdit.bind(this,id);
+            buffer_editor_category = document.getElementById("category_"+id).innerText;
+            buffer_editor_stage = table;
+
+            option.forEach(element => {
+                if(element == buffer_editor_category)
+                    options += `<option selected value='`+element+`'>`+element+`</option>`;
+                else
+                    options += `<option value='`+element+`'>`+element+`</option>`;
+            });
+            stage.forEach(element => {
+                if(element == buffer_editor_stage)
+                    stages += "<option selected value='"+element+"'>"+element+"</option>";
+                else
+                    stages += "<option value='"+element+"'>"+element+"</option>";
+            });
+            
+
+            var header = document.getElementById('name_'+ id);
+            buffer_editor_name = header.innerText;
+            header.innerHTML="<input type='text' id='editor_name_"+id+"' style='max-width: min-content' value=\'"+buffer_editor_name+"\'>";
+            var area = document.getElementById("text_"+id);
+            buffer_editor_text = area.value;
+            area.readOnly = false;
+           
+            var categoryArea = document.getElementById("category_area_"+id);
+            categoryArea.innerHTML = `<select class='form-select w-50 form-select-sm mx-auto mb-2' name='category' id='category_editor_${id}'>`+options+`</select>`+
+                                     `<select class='form-select w-50 form-select-sm mx-auto mb-2' name='stage' id='stage_editor_${id}'>`+stages+`</select>`;
+
+            
+
+            var btn_ed = document.getElementById("btn_ed_"+id);
+            btn_ed.value = "Cancel";
+            btn_ed.onclick = CancelEdit.bind(this,id);
+
+            var btn_de = document.getElementById("btn_de_"+id);
+            btn_de.value = "Confirm";
+            btn_de.onclick = ConfirmEdit.bind(this,id);
+        }
+        else{
+            alert(xhr.status);
+        }
+    }
+    xhr.send();  
 }
 
 function CancelEdit(id)
@@ -77,9 +120,13 @@ function CancelEdit(id)
     area.value = buffer_editor_text;
     area.readOnly = true;
 
+    var categoryArea = document.getElementById("category_area_"+id);
+    categoryArea.innerHTML = `<p id=category_${id}>${buffer_editor_category}</p>`;
+
+
     var btn_ed = document.getElementById("btn_ed_"+id);
     btn_ed.value = "Edit";
-    btn_ed.onclick = EditCard.bind(this,id);
+    btn_ed.onclick = EditCard.bind(this,id, buffer_editor_stage);
 
     var btn_de = document.getElementById("btn_de_"+id);
     btn_de.value = "Delete";
@@ -88,10 +135,12 @@ function CancelEdit(id)
 }
 function ConfirmEdit(id)
 {
-
-    var dname = document.getElementById('editor_name').value;
+    var dname = document.getElementById('editor_name_'+id).value;
     if(dname == "") return false;
     var dtext = document.getElementById("text_"+id).value;
+
+    var category = document.getElementById("category_editor_"+id).value;
+    var stage = document.getElementById("stage_editor_"+id).value;
 
     if(xhr.readyState != 0 && xhr.readyState != 4) return false;
 
@@ -104,6 +153,12 @@ function ConfirmEdit(id)
         {
             buffer_editor_name = dname;
             buffer_editor_text = dtext;
+            buffer_editor_category = category;
+            if(buffer_editor_stage != stage)
+            {
+                buffer_editor_stage = stage;
+                document.getElementById("parent_div_"+stage).appendChild(document.getElementById(id));
+            }
             CancelEdit(id);
         }
         else{
@@ -111,7 +166,7 @@ function ConfirmEdit(id)
         }
     }
 
-    xhr.send("name="+dname+"&text="+dtext+"&id="+id);
+    xhr.send("name="+dname+"&text="+dtext+"&id="+id+"&category="+category+"&stage="+stage);
 }
 
 
@@ -128,7 +183,7 @@ function AddCard(name, text, id, login, category, stage)
                         "<div class='d-flex justify-content-between align-items-center'>" +
                         "<h5 class='mb-0' style='width: 70%' id='name_"+id+"'>"+name+"</h5>" +
                         "<div class='btn-group'>" +
-                        "<input type='button' id='btn_ed_"+id+"' value='Edit' onclick='EditCard("+id+")' class='btn btn-sm btn-outline-secondary'>" +
+                        `<input type='button' id='btn_ed_`+id+`' value='Edit' onclick='EditCard("${id}","${stage}")' class='btn btn-sm btn-outline-secondary'>` +
                         "<input type='button' id='btn_de_"+id+"' value='Delete' name='del' onclick='DeleteCard("+id+")' class='btn btn-sm btn-outline-secondary'>" +
                         "</div></div></div>"+
                         "<div class='card-body'><p>"+category+"</p>"+
@@ -145,7 +200,8 @@ function AddAdderCard(login,stage)
     {
         if(xhr.status == 200)
         {
-            var option = xhr.responseText.split(" ");
+
+            var option = xhr.responseText.split("&")[0].split("+");
             var options = "";
             option.forEach(element => {
                 options += "<option value='"+element+"'>"+element+"</option>"
